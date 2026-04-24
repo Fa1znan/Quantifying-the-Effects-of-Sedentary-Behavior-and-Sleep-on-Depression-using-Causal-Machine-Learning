@@ -1,0 +1,12 @@
+# 忽略所有的真实数据文件
+data/raw/*
+data/processed/*
+*.csv
+*.xpt
+*.XPT
+*.xlsx
+
+# 忽略环境配置和临时文件
+__pycache__/
+.ipynb_checkpoints/
+.DS_Store
