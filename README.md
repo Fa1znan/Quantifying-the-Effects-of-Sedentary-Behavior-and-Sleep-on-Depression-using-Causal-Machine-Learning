@@ -17,5 +17,26 @@ Following the initial data merge, we conducted rigorous data cleaning tailored t
 Crucially, to handle missing covariates without discarding valuable samples, we implemented **MICE (Multiple Imputation by Chained Equations)** via `sklearn.IterativeImputer`. This advanced machine learning technique preserves the statistical integrity of our dataset. We also conducted exploratory data analysis (EDA) to visualize baseline distributions and superficial correlations.
 
 To reproduce our preprocessing results:
-4. Run the notebook `notebooks/02_data_cleaning.ipynb` to filter invalid survey codes and generate the target variable.
-5. Run the notebook `notebooks/03_imputation_and_eda.ipynb` to perform MICE imputation, view baseline plots, and generate the final `NHANES_Ready_for_Causal.csv`.
+4. Run the notebook `notebooks/data_cleaning.ipynb` to filter invalid survey codes and generate the target variable.
+5. Run the notebook `notebooks/imputation_and_eda.ipynb` to perform MICE imputation, view baseline plots, and generate the final `NHANES_Ready_for_Causal.csv`.
+
+Causal Discovery & Directed Acyclic Graph (DAG) Generation
+To uncover the hidden causal structure rather than mere correlations, we applied the **PC Algorithm** using the `causal-learn` library. 
+
+**Algorithm Correction via Background Knowledge:**
+Our purely data-driven PC algorithm initially oriented arrows toward invariant demographic traits. To resolve this, we injected **Domain Background Knowledge**, strictly forbidding any edges pointing towards `Age` and `Gender`. This resulted in a logically sound DAG.
+
+**Key Finding: The "Reverse Causality" Paradigm**
+The corrected DAG revealed a profound insight that challenges conventional assumptions. Instead of lifestyle choices causing depression, the algorithm strongly identified **Depression (`PHQ9_Score`) as the causal parent of lifestyle disruptions (`Sleep_Hours` and `Sedentary_Mins`)**. Clinically, this aligns with psychiatric literature: depressive episodes inherently induce insomnia and psychomotor retardation (sedentary behavior), cascading further into impacts on income and BMI.
+
+To reproduce the causal graph:
+6. Run the notebook `notebooks/causal_discovery.ipynb` to generate the corrected DAG.
+
+Subgroup Analysis & Algorithmic Robustness
+To elevate the academic rigor of our project, we conducted a deep dive into the causal structures by altering target definitions and validating across algorithmic families.
+
+**1. Thresholding Effect (Severe MDD):**
+We binarized the continuous PHQ-9 score using a clinical threshold ($\ge 15$) to isolate Severe Major Depressive Disorder (MDD). The resulting DAG showed a structural paradigm shift: the causal links between depression and lifestyle (sleep/sedentary) vanished, likely due to bipolar extreme variances (e.g., hypersomnia vs. insomnia). However, Severe MDD maintained highly robust causal arrows pointing directly to elevated **BMI** and reduced **Income**, highlighting the profound metabolic and socioeconomic devastation caused by severe mental illness.
+
+**2. Cross-Validation via LiNGAM (Ongoing):**
+To ensure our findings were not artifacts of the constraint-based PC algorithm, we cross-validated the causal skeleton using **DirectLiNGAM**, a Functional Causal Model (FCM) that leverages non-Gaussian data distributions.
