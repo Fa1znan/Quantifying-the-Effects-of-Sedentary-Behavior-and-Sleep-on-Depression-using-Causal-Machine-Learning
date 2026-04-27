@@ -13,16 +13,16 @@ To prepare for rigorous sensitivity analysis, we processed missing covariates us
 To reproduce our preprocessing:
 
 Download the .XPT files from the CDC NHANES website and place them in data/raw/.
-Run notebooks/01_data_merging.ipynb to generate the merged dataset.
-Run notebooks/02_data_cleaning.ipynb to filter invalid survey artifacts (e.g., "Refused").
-Run notebooks/03_imputation_and_eda.ipynb to generate the three imputed datasets and EDA visualizations.
+Run notebooks/data_merging.ipynb to generate the merged dataset.
+Run notebooks/data_cleaning.ipynb to filter invalid survey artifacts (e.g., "Refused").
+Run notebooks/imputation_and_eda.ipynb to generate the three imputed datasets and EDA visualizations.
 Phase 1: Causal Discovery & Topological Robustness
 To uncover the hidden causal skeleton, we conducted a massive cross-validation across three distinct algorithmic families: PC (Constraint-based), LiNGAM (Functional-based), and GES (Score-based).
 
 The "Reverse Causality" Paradigm: Across algorithms, the data strongly rejected the assumption that lifestyle causes depression. Instead, it identified Depression (PHQ-9) as the causal parent disrupting lifestyle (Sedentary Mins) and socioeconomic status (Income Ratio).
 Algorithmic Robustness & Thresholding: We tested both continuous PHQ-9 and binarized Severe MDD (Score ≥ 15). GES proved to be the most topologically robust algorithm, maintaining stable directed edges pointing from Severe MDD to BMI and Income across all three imputation datasets, whereas PC and LiNGAM failed the stability test.
 To reproduce the causal graphs:
-5. Run notebooks/04_causal_discovery_continuous.ipynb and 05_causal_discovery_binary.ipynb.
+5. Run notebooks/causal_discovery.ipynb and causal_v2.ipynb.
 
 Phase 2: Causal Inference & Strict Refutations (DoWhy)
 Based on the GES-generated Directed Acyclic Graph (DAG), we utilized the Microsoft DoWhy framework to quantify the Average Treatment Effect (ATE) using Linear Regression and Inverse Probability of Treatment Weighting (IPTW).
@@ -35,7 +35,7 @@ Path 2 (Socioeconomic): PHQ9
 → Income Ratio (ATE = -0.067 per PHQ9 point).
 Refutations: Both pathways perfectly survived Placebo tests (effect dropped to 0), Subset refutations (removing 20% data), and the Unobserved Common Cause test.
 To reproduce the DoWhy inference:
-6. Run notebooks/06_causal_inference_dowhy.ipynb.
+6. Run notebooks/advanced_causal_econml.ipynb.
 
 Phase 3: The Metabolic Plot Twist (Double Machine Learning)
 For the Severe_MDD -> BMI pathway, basic IPTW suggested an alarming ATE of +2.13. However, as an Advanced Machine Learning project, we challenged this linear assumption by deploying Double Machine Learning (DML) via Causal Forests (EconML library) to strip away complex non-linear confounders.
@@ -48,4 +48,4 @@ Older Adults (≥60): -0.22 BMI (Severe depression induces anorexia and muscle a
 The overall effect was cancelled out by this extreme age-based heterogeneity. This highlights the ultimate value of Causal ML: Treatment and interventions must be targeted, not one-size-fits-all.
 
 To reproduce the DML & CATE analysis:
-7. Run notebooks/07_advanced_causal_econml.ipynb.
+7. Run notebooks/advanced_causal_econml.ipynb.
